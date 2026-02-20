@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RETA FINAL PC SC - ESCRIVÃO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #05070a;
+            color: #f8fafc;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .day-card {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .day-card:hover {
+            border-color: #fbbf24;
+            background: #161e31;
+        }
+
+        .day-card.completed {
+            border-color: #10b981;
+            background: #064e3b;
+        }
+
+        .simulado-tag {
+            background: #fbbf24;
+            color: #000;
+            font-weight: 900;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .weight-tag {
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            font-weight: 700;
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #05070a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <header class="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-slate-800 pb-8 gap-6">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-black tracking-tighter italic uppercase">
+                    RETA FINAL <span class="text-yellow-500 underline decoration-2 underline-offset-8">PC SC</span>
+                </h1>
+                <p class="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs mt-3">Escrivão de Polícia Civil / Investigador</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto">
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Aproveitamento</p>
+                    <p id="stat-rate" class="text-2xl font-black text-yellow-500 italic leading-none">0%</p>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Acertos</p>
+                    <p id="stat-acertos" class="text-2xl font-black leading-none">0</p>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Questões</p>
+                    <p id="stat-total" class="text-2xl font-black leading-none">0</p>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-yellow-500/20">
+                    <p class="text-[10px] font-bold text-yellow-500 uppercase mb-1">Dias p/ Prova</p>
+                    <p id="stat-countdown" class="text-2xl font-black leading-none">--</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- CALENDÁRIO -->
+            <div class="lg:col-span-3">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-1 h-6 bg-yellow-500 rounded-full"></div>
+                    <h2 class="text-lg font-black uppercase italic tracking-wider">Cronograma de 30 Dias (20/02 - 21/03)</h2>
+                </div>
+                
+                <div id="calendar-view" class="calendar-grid">
+                    <!-- Injetado via JS -->
+                </div>
+            </div>
+
+            <!-- ASIDE -->
+            <div class="space-y-6">
+                <div class="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl">
+                    <h3 class="text-white font-black uppercase text-xs mb-4 flex items-center gap-2 italic">
+                        🎯 Meta Estratégica
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                            <p class="text-[10px] font-black text-blue-400 uppercase mb-1">Matéria de Peso (50Q)</p>
+                            <p class="text-xs text-slate-300">Português, TI, RLM ou Penal.</p>
+                        </div>
+                        <div class="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Secundárias (30Q)</p>
+                            <p class="text-xs text-slate-300">Varredura completa do edital.</p>
+                        </div>
+                        <div class="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                            <p class="text-[10px] font-black text-yellow-500 uppercase mb-1">Fim de Semana (100Q)</p>
+                            <p class="text-xs text-slate-300 text-center font-bold italic">SIMULADO INTEGRAL IDECAN</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl">
+                    <h3 class="text-slate-500 font-bold uppercase text-[10px] mb-4 tracking-widest">Evolução de Acertos</h3>
+                    <canvas id="performanceChart" height="200"></canvas>
+                </div>
+
+                <button onclick="resetData()" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-red-500 transition-colors bg-slate-900/50 rounded-2xl border border-slate-800">
+                    Limpar Registro da Reta Final
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal-score" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-slate-800 p-8 rounded-[40px] w-full max-w-sm shadow-2xl">
+            <h2 id="m-date" class="text-3xl font-black text-white italic mb-1 uppercase">--/--</h2>
+            <div id="m-desc" class="mb-8 p-4 bg-slate-800/50 rounded-2xl border border-slate-700"></div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Acertos Brutos</label>
+                    <input type="number" id="in-ac" class="w-full bg-slate-950 border border-slate-700 p-4 text-3xl font-black text-emerald-500 rounded-2xl outline-none focus:border-emerald-500 transition-all">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Erros Brutos</label>
+                    <input type="number" id="in-er" class="w-full bg-slate-950 border border-slate-700 p-4 text-3xl font-black text-rose-500 rounded-2xl outline-none focus:border-rose-500 transition-all">
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-4 text-slate-500 font-bold uppercase text-xs hover:text-white transition-colors">Voltar</button>
+                <button onclick="saveScore()" class="flex-1 py-4 bg-yellow-500 text-black font-black uppercase text-xs rounded-2xl hover:bg-yellow-400 shadow-xl shadow-yellow-500/20">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração de fuso e data para evitar o erro do dia 19
+        const buildDate = (year, month, day) => {
+            const d = new Date(year, month - 1, day, 12, 0, 0);
+            return d;
+        };
+
+        const startDate = buildDate(2026, 2, 20);
+        const endDate = buildDate(2026, 3, 21);
+        const examDate = buildDate(2026, 3, 22);
+
+        // Planejamento Semanal Base
+        const planning = {
+            0: { p: "Português", s: "Proc. Penal + DH", pm: 50, sm: 30 }, // Segunda
+            1: { p: "Informática (TI)", s: "D. Administrativo", pm: 50, sm: 30 }, // Terça
+            2: { p: "Raciocínio Lógico", s: "Contabilidade", pm: 50, sm: 30 }, // Quarta
+            3: { p: "Direito Penal", s: "D. Constitucional", pm: 50, sm: 30 }, // Quinta
+            4: { p: "TI + Português (Mix)", s: "Legis. + Adm", pm: 50, sm: 30 }, // Sexta
+            5: { p: "SIMULADO GERAL", s: "ESTRUTURA IDECAN", pm: 100, sm: 0 }, // Sábado
+            6: { p: "SIMULADO GERAL", s: "ESTRUTURA IDECAN", pm: 100, sm: 0 }  // Domingo
+        };
+
+        let db = JSON.parse(localStorage.getItem('pcsc_reta_final_fixed')) || {};
+        let selectedKey = null;
+        let chart = null;
+
+        function init() {
+            renderCalendar();
+            updateDashboard();
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendar-view');
+            container.innerHTML = '';
+            
+            let cursor = new Date(startDate);
+
+            while (cursor <= endDate) {
+                const dayKey = cursor.toISOString().split('T')[0];
+                const dayOfWeek = cursor.getDay(); // 0=Sun, 1=Mon...
+                
+                // Alinhamento do Index para o objeto planning (Mon=0, Sun=6)
+                const dayIndex = (dayOfWeek + 6) % 7; 
+                const plan = planning[dayIndex];
+                const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+
+                const data = db[dayKey] || { ac: 0, er: 0 };
+                const total = data.ac + data.er;
+                const hitRate = total > 0 ? ((data.ac / total) * 100).toFixed(0) : 0;
+
+                const card = document.createElement('div');
+                card.className = `day-card p-4 rounded-3xl cursor-pointer flex flex-col justify-between h-36 ${total > 0 ? 'completed' : ''}`;
+                
+                // Dados para o clique
+                const dateLabel = `${cursor.getDate()}/${cursor.getMonth()+1}`;
+                card.onclick = () => openModal(dayKey, dateLabel, plan);
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="mono text-[10px] font-bold opacity-30 tracking-widest">${dateLabel}</span>
+                        ${isWeekend ? '<span class="simulado-tag">100Q</span>' : '<span class="weight-tag">80Q</span>'}
+                    </div>
+                    <div class="mt-2">
+                        <p class="text-[10px] font-black uppercase leading-tight text-slate-100">${plan.p}</p>
+                        ${!isWeekend ? `<p class="text-[8px] font-bold text-slate-500 uppercase mt-1">+ ${plan.s}</p>` : ''}
+                    </div>
+                    <div class="mt-auto pt-3 flex items-end justify-between border-t border-slate-800">
+                        <span class="text-sm font-black italic text-yellow-500">${total > 0 ? hitRate + '%' : '--'}</span>
+                        <span class="text-[8px] font-bold text-slate-600 uppercase">${total} Q</span>
+                    </div>
+                `;
+                container.appendChild(card);
+                cursor.setDate(cursor.getDate() + 1);
+            }
+        }
+
+        function openModal(key, dateLabel, plan) {
+            selectedKey = key;
+            const isWeekend = plan.pm === 100;
+            
+            document.getElementById('m-date').innerText = dateLabel;
+            document.getElementById('m-desc').innerHTML = `
+                <p class="text-yellow-500 font-black text-sm uppercase italic mb-1">${plan.p}</p>
+                <p class="text-slate-400 text-[10px] font-bold uppercase">
+                    ${isWeekend ? 'Simulado 100 Questões (Padrão IDECAN)' : 'Meta: 50Q (Peso) + 30Q (Secundárias)'}
+                </p>
+            `;
+            
+            document.getElementById('in-ac').value = db[key]?.ac || '';
+            document.getElementById('in-er').value = db[key]?.er || '';
+            document.getElementById('modal-score').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-score').classList.add('hidden');
+        }
+
+        function saveScore() {
+            const ac = parseInt(document.getElementById('in-ac').value) || 0;
+            const er = parseInt(document.getElementById('in-er').value) || 0;
+            db[selectedKey] = { ac, er };
+            localStorage.setItem('pcsc_reta_final_fixed', JSON.stringify(db));
+            closeModal();
+            renderCalendar();
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            let totalAc = 0, totalEr = 0, count = 0;
+            Object.values(db).forEach(d => {
+                totalAc += d.ac; totalEr += d.er; count += (d.ac + d.er);
+            });
+
+            const rate = count > 0 ? ((totalAc / count) * 100).toFixed(1) : 0;
+            document.getElementById('stat-rate').innerText = rate + "%";
+            document.getElementById('stat-acertos').innerText = totalAc;
+            document.getElementById('stat-total').innerText = count;
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const diff = examDate - today;
+            const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('stat-countdown').innerText = daysLeft > 0 ? daysLeft : "PROVA";
+
+            renderChart();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const sortedKeys = Object.keys(db).sort();
+            const data = sortedKeys.map(k => {
+                const total = db[k].ac + db[k].er;
+                return total > 0 ? (db[k].ac / total * 100) : 0;
+            });
+
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedKeys.map(k => k.split('-')[2]),
+                    datasets: [{
+                        data: data,
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.05)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false, min: 0, max: 100 },
+                        x: { display: false }
+                    }
+                }
+            });
+        }
+
+        function resetData() {
+            if(confirm("Confirmar limpeza de todo o progresso?")) {
+                db = {};
+                localStorage.removeItem('pcsc_reta_final_fixed');
+                init();
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+
